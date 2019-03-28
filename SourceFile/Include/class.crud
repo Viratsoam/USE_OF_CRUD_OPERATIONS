@@ -1,0 +1,105 @@
+<?php
+
+class crud
+{
+	private $db;
+	public function __construct($db_con)
+	{
+		$this->db = $db_con;
+	}
+
+	public function create($First,$Last,$email,$Contact)
+	{
+
+		try{
+
+	$stmt = $this->db->prepare("insert into boot_pdo(First_Name,Last_Name,email,Contact) values(:first,:Last,:email,:Contact)");
+
+		$stmt->bindparam(":first",$First);
+		$stmt->bindparam(":Last",$Last);
+		$stmt->bindparam(":email",$email);
+		$stmt->bindparam(":Contact",$Contact);
+		$stmt->execute();
+		return true;
+
+	}
+	catch (Exception $e)
+	{
+		echo $e->getMessage();
+		return false;
+	}
+		
+	}
+	
+
+public function delete($ID)
+{
+	$stmt = $this->db->prepare("delete from boot_pdo where id=:ID");
+	 $stmt->bindparam(":ID",$ID);
+	 $stmt->execute();
+	 return true;
+}
+
+public function getID($ID)
+{
+
+	$stmt = $this->db->prepare("select * from boot_pdo where ID=:ID"); 
+	 $stmt->execute(array(":ID"=>$ID));
+	 $editrow = $stmt->fetch(PDO::FETCH_ASSOC);
+	 return $editrow;
+}
+
+public function update($ID,$First,$Last,$email,$Contact)
+{
+	try{
+		$stmt = $this->db->prepare("UPDATE boot_pdo set First_Name=:fname,Last_Name=:lname,email=:email,Contact=:cont where ID=:ID");
+
+		 $stmt ->bindparam(":ID",$ID);
+		 $stmt ->bindparam(":fname",$First);
+	 	 $stmt ->bindparam(":lname",$Last);
+		 $stmt ->bindparam(":email",$email);
+		 $stmt ->bindparam(":cont",$Contact);
+		 $stmt ->execute();
+
+		return true;
+
+	}
+	catch (Exception $e)
+	{
+		echo $e->getMessage();
+		return false;
+	}
+
+}
+
+
+	public function dataview($query)
+	{
+
+		$stmt = $this->db->prepare($query);
+		$stmt->execute();
+
+		if($stmt->rowCount()>0)
+		{
+			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+				# code...
+			?>
+<tr>
+	<td style="text-align:center;"><?php if(isset($row['ID'])){ print($row['ID']);} ?></td>
+	<td style="text-align:center;"><?php if(isset($row['First_Name'])){ print($row['First_Name']);} ?></td>
+	<td style="text-align:center;"><?php if(isset($row['Last_Name'])){ print($row['Last_Name']);} ?></td>
+	<td style="text-align:center;"><?php if(isset($row['email'])){ print($row['email']);} ?></td>
+	<td style="text-align:center;"><?php if(isset($row['Contact'])){ print($row['Contact']);} ?></td>
+	<td><a href="edit.php?ID=<?php echo $row['ID']; ?>"><i class="glyphicon glyphicon-edit" ></a></td>
+	<td><a href="delete.php?ID=<?php echo $row['ID']; ?>"><i class="glyphicon glyphicon-remove-circle" ></a></td>
+</tr>
+		<?php
+			}
+
+		}
+
+		
+	}
+}
+
+?>
